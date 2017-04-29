@@ -171,10 +171,12 @@ statuses | `List<CommitStatus>` | false | List of statuses associated with this 
 
 ### Methods
 #### Commit Status
-> createStatus(String status __[, String context, String description, String targetUrl]__)
+> void createStatus(String status __[, String context, String description, String targetUrl]__)
 
 #### Review Comment
-> comment(String body __[, String path, Integer position]__)
+> long comment(String body __[, String path, Integer position]__)
+
+Returns the commit id.
 
 ## CommitFile
 ### Properties
@@ -205,7 +207,7 @@ created_at | `Date` | false
 updated_at | `Date` | false
 
 ### Methods
-> delete()
+> void delete()
 
 ## ReviewComment
 ### Properties
@@ -226,7 +228,7 @@ original_position | `Integer` | false
 diff_hunk | `String` | false
 
 ### Methods
-> delete()
+> void delete()
 
 # Examples
 
