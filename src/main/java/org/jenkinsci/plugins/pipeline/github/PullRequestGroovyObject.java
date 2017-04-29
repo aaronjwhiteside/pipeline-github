@@ -7,13 +7,13 @@ import groovy.lang.ReadOnlyPropertyException;
 import hudson.model.Job;
 import hudson.model.Run;
 import org.eclipse.egit.github.core.Comment;
-import org.eclipse.egit.github.core.CommitComment;
 import org.eclipse.egit.github.core.CommitStatus;
 import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.PullRequestMarker;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.User;
 import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
+import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitComment;
 import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitService;
 import org.jenkinsci.plugins.pipeline.github.extension.ExtendedGitHubClient;
 import org.jenkinsci.plugins.pipeline.github.extension.ExtendedIssueService;
@@ -137,7 +137,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
             case "closed_at":
                 return pullRequest.getCreatedAt();
             case "closed_by":
-                return null; // TODO:
+                return GitHubHelper.userToLogin(pullRequest.getClosedBy());
             case "merged_at":
                 return pullRequest.getMergedAt();
             case "merged_by":
@@ -224,7 +224,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
 
     private Iterable<ReviewCommentGroovyObject> getReviewComments() {
         Stream<ReviewCommentGroovyObject> stream = StreamSupport
-                .stream(pullRequestService.pageComments(base,
+                .stream(pullRequestService.pageComments2(base,
                         pullRequestHead.getNumber()).spliterator(), false)
                 .flatMap(Collection::stream)
                 .map(c -> new ReviewCommentGroovyObject(c, base, commitService));
@@ -343,7 +343,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
         edit.setNumber(pullRequest.getNumber());
         edit.setTitle(title);
         try {
-            pullRequestService.editPullRequest(base, edit);
+            pullRequest = pullRequestService.editPullRequest(base, edit);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -354,7 +354,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
         edit.setNumber(pullRequest.getNumber());
         edit.setBody(body);
         try {
-            pullRequestService.editPullRequest(base, edit);
+            pullRequest = pullRequestService.editPullRequest(base, edit);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -365,7 +365,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
         edit.setNumber(pullRequest.getNumber());
         edit.setState(state);
         try {
-            pullRequestService.editPullRequest(base, edit);
+            pullRequest = pullRequestService.editPullRequest(base, edit);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -376,7 +376,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
         edit.setNumber(pullRequest.getNumber());
         edit.setBase(new PullRequestMarker().setRef(newBase));
         try {
-            pullRequestService.editPullRequest(base, edit);
+            pullRequest = pullRequestService.editPullRequest(base, edit);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -387,7 +387,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
         edit.setNumber(pullRequest.getNumber());
         edit.setMaintainerCanModify(value);
         try {
-            pullRequestService.editPullRequest(base, edit);
+            pullRequest = pullRequestService.editPullRequest(base, edit);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -460,12 +460,18 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
     }
 
     @Whitelisted
-    public void createStatus(final Map<String, String> params) {
-        createStatus(params.get("status"), params.get("context"), params.get("description"), params.get("targetUrl"));
+    public CommitStatusGroovyObject createStatus(final Map<String, String> params) {
+        return createStatus(params.get("status"),
+                            params.get("context"),
+                            params.get("description"),
+                            params.get("targetUrl"));
     }
 
     @Whitelisted
-    public void createStatus(final String status, final String context, final String description, final String targetUrl) {
+    public CommitStatusGroovyObject createStatus(final String status,
+                                                 final String context,
+                                                 final String description,
+                                                 final String targetUrl) {
         Objects.requireNonNull(status, "status is a required argument");
 
         CommitStatus commitStatus = new CommitStatus();
@@ -474,36 +480,45 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
         commitStatus.setDescription(description);
         commitStatus.setTargetUrl(targetUrl);
         try {
-            commitService.createStatus(head, pullRequest.getHead().getSha(), commitStatus);
+            return new CommitStatusGroovyObject(
+                    commitService.createStatus(head, pullRequest.getHead().getSha(), commitStatus));
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Whitelisted
-    public long reviewComment(final String commitId, final String path,
-                              final int position, final String body) {
+    public ReviewCommentGroovyObject reviewComment(final String commitId,
+                                                   final String path,
+                                                   final int position,
+                                                   final String body) {
         Objects.requireNonNull(commitId, "commitId is a required argument");
         Objects.requireNonNull(path, "path is a required argument");
         Objects.requireNonNull(body, "body is a required argument");
 
-        CommitComment comment = new CommitComment();
+        ExtendedCommitComment comment = new ExtendedCommitComment();
         comment.setCommitId(commitId);
         comment.setPath(path);
         comment.setPosition(position);
         comment.setBody(body);
         try {
-            return pullRequestService.createComment(base, pullRequestHead.getNumber(), comment).getId();
+            return new ReviewCommentGroovyObject(
+                    pullRequestService.createComment2(base, pullRequestHead.getNumber(), comment),
+                    base,
+                    commitService);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Whitelisted
-    public long replyToReviewComment(final long commentId, final String body) {
+    public ReviewCommentGroovyObject replyToReviewComment(final long commentId, final String body) {
         Objects.requireNonNull(body, "body is a required argument");
         try {
-            return pullRequestService.replyToComment(base, pullRequestHead.getNumber(), (int) commentId, body).getId();
+            return new ReviewCommentGroovyObject(
+                    pullRequestService.replyToComment2(base, pullRequestHead.getNumber(), (int) commentId, body),
+                    base,
+                    commitService);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -519,39 +534,45 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
     }
 
     @Whitelisted
-    public void editReviewComment(final long commentId, final String body) {
+    public ReviewCommentGroovyObject editReviewComment(final long commentId, final String body) {
         Objects.requireNonNull(body, "body is a required argument");
 
-        CommitComment comment = new CommitComment();
+        ExtendedCommitComment comment = new ExtendedCommitComment();
         comment.setId(commentId);
         comment.setBody(body);
         try {
-            pullRequestService.editComment(base, comment);
+            return new ReviewCommentGroovyObject(pullRequestService.editComment2(base, comment), base, commitService);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Whitelisted
-    public long comment(final String body) {
+    public IssueCommentGroovyObject comment(final String body) {
         Objects.requireNonNull(body, "body is a required argument");
 
         try {
-            return issueService.createComment(base, pullRequestHead.getNumber(), body).getId();
+            return new IssueCommentGroovyObject(
+                    issueService.createComment(base, pullRequestHead.getNumber(), body),
+                    base,
+                    issueService);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Whitelisted
-    public void editComment(final long commentId, final String body) {
+    public IssueCommentGroovyObject editComment(final long commentId, final String body) {
         Objects.requireNonNull(body, "body is a required argument");
 
         Comment comment = new Comment();
         comment.setId(commentId);
         comment.setBody(body);
         try {
-            issueService.editComment(base, comment);
+            return new IssueCommentGroovyObject(
+                    issueService.editComment(base, comment),
+                    base,
+                    issueService);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }

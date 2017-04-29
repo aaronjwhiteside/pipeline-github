@@ -1,11 +1,15 @@
 package org.jenkinsci.plugins.pipeline.github.extension;
 
+import com.google.gson.reflect.TypeToken;
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
 import org.eclipse.egit.github.core.client.GitHubRequest;
+import org.eclipse.egit.github.core.client.PageIterator;
+import org.eclipse.egit.github.core.client.PagedRequest;
 import org.eclipse.egit.github.core.service.PullRequestService;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,6 +29,7 @@ public class ExtendedPullRequestService extends PullRequestService {
 
     public ExtendedPullRequest editPullRequest(final IRepositoryIdProvider repository, final ExtendedPullRequest request) throws IOException {
         Objects.requireNonNull(request, "request cannot be null");
+
         String id = this.getId(repository);
         StringBuilder uri = new StringBuilder("/repos");
         uri.append('/').append(id);
@@ -92,5 +97,73 @@ public class ExtendedPullRequestService extends PullRequestService {
         params.put("sha", sha);
         params.put("merge_method", mergeMethod);
         return getClient().put(uri.toString(), params, ExtendedMergeStatus.class);
+    }
+
+    public PageIterator<ExtendedCommitComment> pageComments2(final IRepositoryIdProvider repository,
+                                                             final int id) {
+        return this.pageComments2(repository, id, 100);
+    }
+
+    public PageIterator<ExtendedCommitComment> pageComments2(final IRepositoryIdProvider repository,
+                                                             final int id,
+                                                             final int size) {
+        return this.pageComments2(repository, id, 1, size);
+    }
+
+    public PageIterator<ExtendedCommitComment> pageComments2(final IRepositoryIdProvider repository,
+                                                             final int id,
+                                                             final int start,
+                                                             final int size) {
+        String repoId = this.getId(repository);
+        StringBuilder uri = new StringBuilder("/repos");
+        uri.append('/').append(repoId);
+        uri.append("/pulls");
+        uri.append('/').append(id);
+        uri.append("/comments");
+
+        PagedRequest<ExtendedCommitComment> request = this.createPagedRequest(start, size);
+        request.setUri(uri);
+        request.setType((new TypeToken<List<ExtendedCommitComment>>(){}).getType());
+        return this.createPageIterator(request);
+    }
+
+    public ExtendedCommitComment createComment2(final IRepositoryIdProvider repository,
+                                                final int id,
+                                                final ExtendedCommitComment comment) throws IOException {
+        String repoId = this.getId(repository);
+        StringBuilder uri = new StringBuilder("/repos");
+        uri.append('/').append(repoId);
+        uri.append("/pulls");
+        uri.append('/').append(id);
+        uri.append("/comments");
+        return (ExtendedCommitComment)this.client.post(uri.toString(), comment, ExtendedCommitComment.class);
+    }
+
+    public ExtendedCommitComment replyToComment2(final IRepositoryIdProvider repository,
+                                                 final int pullRequestId,
+                                                 final int commentId,
+                                                 final String body) throws IOException {
+        String repoId = this.getId(repository);
+        StringBuilder uri = new StringBuilder("/repos");
+        uri.append('/').append(repoId);
+        uri.append("/pulls");
+        uri.append('/').append(pullRequestId);
+        uri.append("/comments");
+        Map<String, String> params = new HashMap();
+        params.put("in_reply_to", Integer.toString(commentId));
+        params.put("body", body);
+        return (ExtendedCommitComment)this.client.post(uri.toString(), params, ExtendedCommitComment.class);
+    }
+
+    public ExtendedCommitComment editComment2(final IRepositoryIdProvider repository,
+                                              final ExtendedCommitComment comment) throws IOException {
+        Objects.requireNonNull(comment, "comment cannot be null");
+        String repoId = this.getId(repository);
+        StringBuilder uri = new StringBuilder("/repos");
+        uri.append('/').append(repoId);
+        uri.append("/pulls");
+        uri.append("/comments");
+        uri.append('/').append(comment.getId());
+        return (ExtendedCommitComment)this.client.post(uri.toString(), comment, ExtendedCommitComment.class);
     }
 }

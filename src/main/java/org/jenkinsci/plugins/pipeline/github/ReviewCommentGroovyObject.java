@@ -3,8 +3,8 @@ package org.jenkinsci.plugins.pipeline.github;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.ReadOnlyPropertyException;
-import org.eclipse.egit.github.core.CommitComment;
 import org.eclipse.egit.github.core.RepositoryId;
+import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitComment;
 import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitService;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
 
@@ -16,11 +16,12 @@ import java.util.Objects;
  * @author Aaron Whiteside
  */
 public class ReviewCommentGroovyObject extends GroovyObjectSupport {
-    private final CommitComment commitComment;
     private final RepositoryId base;
     private final ExtendedCommitService commitService;
 
-    public ReviewCommentGroovyObject(final CommitComment commitComment,
+    private ExtendedCommitComment commitComment;
+
+    public ReviewCommentGroovyObject(final ExtendedCommitComment commitComment,
                                      final RepositoryId base,
                                      final ExtendedCommitService commitService) {
         this.commitComment = commitComment;
@@ -99,11 +100,11 @@ public class ReviewCommentGroovyObject extends GroovyObjectSupport {
     }
 
     private void setBody(final String body) {
-        CommitComment edit = new CommitComment();
+        ExtendedCommitComment edit = new ExtendedCommitComment();
         edit.setId(commitComment.getId());
         edit.setBody(body);
         try {
-            commitService.editComment(base, edit);
+            commitComment = commitService.editComment2(base, edit);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }

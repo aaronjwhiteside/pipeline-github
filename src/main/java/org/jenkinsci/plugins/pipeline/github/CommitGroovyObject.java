@@ -79,7 +79,7 @@ public class CommitGroovyObject extends GroovyObjectSupport {
 
     private Iterable<ReviewCommentGroovyObject> getComments() {
         Stream<ReviewCommentGroovyObject> stream = StreamSupport.stream(
-                commitService.pageComments(base, commit.getSha()).spliterator(), false)
+                commitService.pageComments2(base, commit.getSha()).spliterator(), false)
                 .flatMap(Collection::stream)
                 .map(c -> new ReviewCommentGroovyObject(c, base, commitService));
         return stream::iterator;
@@ -136,12 +136,16 @@ public class CommitGroovyObject extends GroovyObjectSupport {
     }
 
     @Whitelisted
-    public long comment(final Map<String, Object> params) {
-        return comment((String)params.get("body"), (String)params.get("path"), (Integer)params.get("position"));
+    public ReviewCommentGroovyObject comment(final Map<String, Object> params) {
+        return comment((String)params.get("body"),
+                       (String)params.get("path"),
+                       (Integer)params.get("position"));
     }
 
     @Whitelisted
-    public long comment(final String body, final String path, final Integer position) {
+    public ReviewCommentGroovyObject comment(final String body,
+                                             final String path,
+                                             final Integer position) {
         Objects.requireNonNull(body, "body is a required argument");
 
         ExtendedCommitComment comment = new ExtendedCommitComment();
@@ -149,19 +153,28 @@ public class CommitGroovyObject extends GroovyObjectSupport {
         comment.setPath(path);
         comment.setPosition(position);
         try {
-            return commitService.addComment(base, commit.getSha(), comment).getId();
+            return new ReviewCommentGroovyObject(
+                    commitService.addComment(base, commit.getSha(), comment),
+                    base,
+                    commitService);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Whitelisted
-    public void createStatus(final Map<String, String> params) {
-        createStatus(params.get("status"), params.get("context"), params.get("description"), params.get("targetUrl"));
+    public CommitStatusGroovyObject createStatus(final Map<String, String> params) {
+        return createStatus(params.get("status"),
+                            params.get("context"),
+                            params.get("description"),
+                            params.get("targetUrl"));
     }
 
     @Whitelisted
-    public void createStatus(final String status, final String context, final String description, final String targetUrl) {
+    public CommitStatusGroovyObject createStatus(final String status,
+                                                 final String context,
+                                                 final String description,
+                                                 final String targetUrl) {
         Objects.requireNonNull(status, "status is a required argument");
 
         CommitStatus commitStatus = new CommitStatus();
@@ -170,7 +183,8 @@ public class CommitGroovyObject extends GroovyObjectSupport {
         commitStatus.setDescription(description);
         commitStatus.setTargetUrl(targetUrl);
         try {
-            commitService.createStatus(base, commit.getSha(), commitStatus);
+            return new CommitStatusGroovyObject(
+                    commitService.createStatus(base, commit.getSha(), commitStatus));
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }

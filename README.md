@@ -93,9 +93,11 @@ maintainer_can_modify | `Boolean` | **true** | Accepts `true`, `false` or `'true
 
 > String merge(__[String commitTitle, String commitMessage, String sha, String mergeMethod]__)
 
+Returns the merge's SHA/commit id.
+
 #### Commit Status
 
-> void createStatus(String status __[, String context, String description, String targetUrl]__)
+> CommitStatus createStatus(String status __[, String context, String description, String targetUrl]__)
 
 #### Labels
 > void addLabels(String...labels)
@@ -108,24 +110,18 @@ maintainer_can_modify | `Boolean` | **true** | Accepts `true`, `false` or `'true
 > void removeAssignees(List<String> assignees)
 
 #### Review Comments
-> long reviewComment(String commitId, String path, int position, String body)
+> ReviewComment reviewComment(String commitId, String path, int position, String body)
 
-Returns the commit id.
+> ReviewComment editReviewComment(long commentId, String body)
 
-> long replyToReviewComment(long commentId, String body)
-
-Returns the commit id.
+> ReviewComment replyToReviewComment(long commentId, String body)
 
 > void deleteReviewComment(long commentId)
 
-> void editReviewComment(long commentId, String body)
-
 #### Pull Request Comments (Issue Comments)
-> long comment(String body)
+> IssueComment comment(String body)
 
-Returns the commit id.
-
-> void editComment(long commentId, String body)
+> IssueComment editComment(long commentId, String body)
 
 > void deleteComment(long commentId)
 
@@ -171,12 +167,10 @@ statuses | `List<CommitStatus>` | false | List of statuses associated with this 
 
 ### Methods
 #### Commit Status
-> void createStatus(String status __[, String context, String description, String targetUrl]__)
+> CommitStatus createStatus(String status __[, String context, String description, String targetUrl]__)
 
 #### Review Comment
-> long comment(String body __[, String path, Integer position]__)
-
-Returns the commit id.
+> ReviewComment comment(String body __[, String path, Integer position]__)
 
 ## CommitFile
 ### Properties
@@ -230,6 +224,7 @@ diff_hunk | `String` | false
 ### Methods
 > void delete()
 
+
 # Examples
 
 ## Pull Requests
@@ -243,6 +238,14 @@ pullRequest['body'] = pullRequest['body'] + '\nEdited by Pipeline'
 ### Closing a Pull Request
 ```groovy
 pullRequest['status'] = 'closed'
+```
+
+### Creating a Commit Status against the head of the Pull Request
+```groovy
+pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge/tests',
+                         description: 'All tests are passing',
+                         targetUrl: "${JOB_URL}/testResults")
 ```
 
 ### Locking and unlocking a Pull Request's conversation
@@ -302,25 +305,21 @@ for (commitFile in pullRequest['files']) {
 
 ### Adding a comment
 ```groovy
-def commentId = pullRequest.comment('This PR is highly illogical..')
+def comment = pullRequest.comment('This PR is highly illogical..')
 ```
 
 ### Editing a comment
 ```groovy
-pullRequest.editComment(commentId, 'Live long and prosper.')
+pullRequest.editComment(comment['id'], 'Live long and prosper.')
 // or
-for (comment in pullRequest['comments']) {
-   comment['body'] = comment['body'] + '\nAll your comments are belong to Jenkins.';
-}
+comment['body'] = 'Live long and prosper.'
 ```
 
-### Removing a comment
+### Deleting a comment
 ```groovy
-pullRequest.removeComment(commentId)
+pullRequest.deleteComment(commentId)
 // or
-for (comment in pullRequest['comments']) {
-   comment.delete()
-}
+comment.delete()
 ```
 
 ### Adding a review comment
@@ -328,35 +327,29 @@ for (comment in pullRequest['comments']) {
 def commitId = 'SHA of the commit containing the change/file you wish to review';
 def path = 'src/main/java/Main.java'
 def lineNumber = 5
-def comment = 'The review comment'
-def commentId = pullRequest.reviewComment(commitId, path, lineNumber, comment)
+def body = 'The review comment'
+def comment = pullRequest.reviewComment(commitId, path, lineNumber, body)
 ```
 
 ### Editing a review comment
 ```groovy
-pullRequest.editReviewComment(commentId, 'Live long and prosper.')
+pullRequest.editReviewComment(comment['id'], 'Live long and prosper.')
 // or
-for (reviewComment in pullRequest['review_comments']) {
-   reviewComment['body'] = reviewComment['body'] + '\nAll your review comments are belong to Jenkins.';
-}
+comment['body'] = 'Live long and prosper.'
 ```
 
-### Removing a review comment
+### Deleting a review comment
 ```groovy
-pullRequest.removeReviewComment(commentId)
+pullRequest.deleteReviewComment(comment['id'])
 // or
-for (reviewComment in pullRequest['review_comments']) {
-   reviewComment.delete()
-}
+comment.delete()
 ```
 
 ### Replying to a review comment
 ```groovy
-pullRequest.replyToReviewComment(commentId, 'Khaaannnn!')
+pullRequest.replyToReviewComment(comment['id'], 'Khaaannnn!')
 // or
-for (reviewComment in pullRequest['review_comments']) {
-   reviewComment.createReply('TODO')
-}
+comment.createReply('Khaaannnn!')
 ```
 
 ### Listing a Pull Request's commits
@@ -386,6 +379,13 @@ for (commit in pullRequest['commits']) {
   for (status  in commit['statuses']) {
      echo "Commit: ${commit['sha']}, Status: ${status['status']}, Context: ${status['context']}, URL: ${status['target_url']}"
   }
+}
+```
+
+### Creating a Commit Status against arbitrary commits
+```groovy
+for (commit in pullRequest['commits']) {
+  createStatus(status: 'pending')
 }
 ```
 

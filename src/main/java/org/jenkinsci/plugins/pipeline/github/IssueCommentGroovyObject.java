@@ -17,7 +17,7 @@ import java.io.UncheckedIOException;
 public class IssueCommentGroovyObject extends GroovyObjectSupport {
     private final RepositoryId base;
     private final IssueService issueService;
-    private final Comment comment;
+    private Comment comment;
 
     public IssueCommentGroovyObject(final Comment comment, final RepositoryId base, final IssueService issueService) {
         this.comment = comment;
@@ -76,7 +76,7 @@ public class IssueCommentGroovyObject extends GroovyObjectSupport {
         edit.setId(comment.getId());
         edit.setBody(body);
         try {
-            issueService.editComment(base, edit);
+            comment = issueService.editComment(base, edit);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
