@@ -1,7 +1,27 @@
+Table of Contents
+=================
+  * [Pipeline: GitHub](#pipeline-github)
+  * [License](#license)
+  * [Prerequisites](#prerequisites)
+  * [Credentials](#credentials)
+  * [Global Variables](#global-variables)
+    * [pullRequest](#pullrequest)
+  * [Auxiliary Classes](#auxiliary-classes)
+    * [CommitStatus](#commitstatus)
+    * [Commit](#commit)
+    * [CommitFile](#commitfile)
+    * [IssueComment](#issuecommet)
+    * [ReviewComment](#reviewcomment)
+  * [Examples](#examples)
+
+
 # Pipeline: GitHub
 The entry point for all of this plugin’s functionality is a `pullRequest` global variable, available to pipeline scripts when the plugin is enabled and the prerequisites are met. 
 
-## Prerequisites
+# License
+MIT
+
+# Prerequisites
 
 Jenkins running Java 8 or higher.
 
@@ -9,7 +29,7 @@ For the additional global variables, provided by this plugin, to be available to
 
 See: [GitHub Branch Source Plugin](https://go.cloudbees.com/docs/cloudbees-documentation/cje-user-guide/index.html#github-branch-source)
 
-## Credentials
+# Credentials
 
 Currently all operations against GitHub will be performed using the builds `Checkout Credentials`, if no `Checkout Credentials` are configured then the `Scan Credentials` will be used instead.
 
@@ -21,11 +41,11 @@ pullRequest.setCredentials('John.Smith', 'qwerty4321')
 
 If you plan to use this plugin to add/modify/remove comments, labels, commit statuses etc. Please ensure that the required permissions are assigned to the token supplied in the credentials (`Checkout`/`Scan`/`Manually`).
 
-## Global variables
+# Global Variables
 
-### `pullRequest`
+## `pullRequest`
 
-#### Properties
+### Properties
 
 Name | Type | Writable | Description
 -----|------|----------|------------
@@ -41,7 +61,7 @@ body | `String` | **true**
 locked | `Boolean` | **true** | Accepts `true`, `false` or `'true'`, `'false'`
 milestone | `Integer` | **true**
 head | `String` | false
-base | `String` | **true** | Name of base branch in the current repository this pull request targets
+base | `String` | **true** | Name of the base branch in the current repository this pull request targets
 files | `Iterable<CommitFile>` | false
 assignees | `List<String>` | **true** | Accepts a `List<String>`
 commits | `Iterable<Commit>` | false
@@ -67,24 +87,60 @@ merge_commit_sha | `String` | false
 maintainer_can_modify | `Boolean` | **true** | Accepts `true`, `false` or `'true'`, `'false'`  
 
 
-#### Methods
-TODO
+### Methods
 
-String merge(_[String commitTitle, String commitMessage, String sha, String mergeMethod]_)
+#### Merge
 
+> String merge(__[String commitTitle, String commitMessage, String sha, String mergeMethod]__)
 
-void createStatus(**String status**_[, String context, String description, String targetUrl]_)
+#### Commit Status
 
+> void createStatus(String status __[, String context, String description, String targetUrl]__)
 
-## Auxiliary classes
+#### Labels
+> void addLabels(String...labels)
 
-### CommitStatus
-#### Properties
+> void removeLabel(String label)
+
+#### Assignees
+> void addAssignees(List<String> assignees)
+
+> void removeAssignees(List<String> assignees)
+
+#### Review Comments
+> long reviewComment(String commitId, String path, int position, String body)
+
+Returns the commit id.
+
+> long replyToReviewComment(long commentId, String body)
+
+Returns the commit id.
+
+> void deleteReviewComment(long commentId)
+
+> void editReviewComment(long commentId, String body)
+
+#### Pull Request Comments (Issue Comments)
+> long comment(String body)
+
+Returns the commit id.
+
+> void editComment(long commentId, String body)
+
+> void deleteComment(long commentId)
+
+#### Misc
+> void setCredentials(String userName, String password)
+
+# Auxiliary Classes
+
+## CommitStatus
+### Properties
 Name | Type | Writable | Description
 -----|------|----------|------------
 id | `String` | false | 
 url | `String` | false
-status | `String` | false
+status | `String` | false | One of `pending`, `success`, `failure` or `error`
 context | `String` | false
 description | `String` | false
 target_url | `String` | false
@@ -92,11 +148,11 @@ created_at | `Date` | false
 updated_at | `Date` | false
 creator | `String` | false
 
-#### Methods
+### Methods
 None.
 
-### Commit
-#### Properties
+## Commit
+### Properties
 Name | Type | Writable | Description
 -----|------|----------|------------
 sha | `String` | false
@@ -113,13 +169,15 @@ total_changes | `Integer` | false
 files | `List<CommitFile>` | false | List of files added, removed and or modified in this commit
 statuses | `List<CommitStatus>` | false | List of statuses associated with this commit
 
-#### Methods
-createStatus(String status, __[String context, String description, String targetUrl]__)
+### Methods
+#### Commit Status
+> createStatus(String status __[, String context, String description, String targetUrl]__)
 
-comment(String body, __[String path, Integer position]__)
+#### Review Comment
+> comment(String body __[, String path, Integer position]__)
 
-### CommitFile
-#### Properties
+## CommitFile
+### Properties
 Name | Type | Writable | Description
 -----|------|----------|------------
 sha | `String` | false
@@ -132,11 +190,11 @@ changes | `Integer` | false
 raw_url | `String` | false
 blob_url | `String` | false
 
-#### Methods
+### Methods
 None.
 
-### IssueComment
-#### Properties
+## IssueComment
+### Properties
 Name | Type | Writable | Description
 -----|------|----------|------------
 id | `Integer` | false
@@ -146,12 +204,11 @@ body | `String` | **true**
 created_at | `Date` | false
 updated_at | `Date` | false
 
-#### Methods
+### Methods
+> delete()
 
-delete()
-
-### ReviewComment
-#### Properties
+## ReviewComment
+### Properties
 Name | Type | Writable | Description
 -----|------|----------|------------
 id | `Integer` | false
@@ -168,35 +225,32 @@ position | `Integer` | false
 original_position | `Integer` | false
 diff_hunk | `String` | false
 
-#### Methods
+### Methods
+> delete()
 
-delete()
+# Examples
 
-replyTo()??
+## Pull Requests
 
-## Usage
-
-### Pull Requests
-
-#### Updating a Pull Request's title and body
+### Updating a Pull Request's title and body
 ```groovy
 pullRequest['title'] = 'Updated title'
 pullRequest['body'] = pullRequest['body'] + '\nEdited by Pipeline'
 ```
 
-#### Closing a Pull Request
+### Closing a Pull Request
 ```groovy
 pullRequest['status'] = 'closed'
 ```
 
-#### Locking and unlocking a Pull Request's conversation
+### Locking and unlocking a Pull Request's conversation
 ```groovy
 if (pullRequest['locked']) {
     pullRequest['locked'] = false
 }
 ```
 
-#### Merging a Pull Request
+### Merging a Pull Request
 ```groovy
 if (pullRequest['mergeable']) {
     pullRequest.merge('merge commit message here')
@@ -207,49 +261,49 @@ if (pullRequest['mergeable']) {
 }
 ```
 
-#### Adding a label
+### Adding a label
 ```groovy
 pullRequest.addLabel('Build Passing')
 ```
 
-#### Removing a label
+### Removing a label
 ```groovy
 pullRequest.removeLabel('Build Passing')
 ```
 
-#### Replacing all labels
+### Replacing all labels
 ```groovy
 pullRequest['labels'] = ['Bug', 'Feature']
 ```
 
-#### Adding an assignee
+### Adding an assignee
 ```groovy
 pullRequest.addAssginee('Spock')
 ```
 
-#### Removing an assignee
+### Removing an assignee
 ```groovy
 pullRequest.removeAssginee('McCoy')
 ```
 
-#### Replacing all assignees
+### Replacing all assignees
 ```groovy
 pullRequest['assignees'] = ['Data', 'Scotty']
 ```
 
-#### Listing all added/modified/removed files
+### Listing all added/modified/removed files
 ```groovy
 for (commitFile in pullRequest['files']) {
     echo "SHA: ${commitFile['sha']} File Name: ${commitFile['filename']} Status: ${commitFile['status']}"
 }
 ```
 
-#### Adding a comment
+### Adding a comment
 ```groovy
 def commentId = pullRequest.comment('This PR is highly illogical..')
 ```
 
-#### Editing a comment
+### Editing a comment
 ```groovy
 pullRequest.editComment(commentId, 'Live long and prosper.')
 // or
@@ -258,7 +312,7 @@ for (comment in pullRequest['comments']) {
 }
 ```
 
-#### Removing a comment
+### Removing a comment
 ```groovy
 pullRequest.removeComment(commentId)
 // or
@@ -267,7 +321,7 @@ for (comment in pullRequest['comments']) {
 }
 ```
 
-#### Adding a review comment
+### Adding a review comment
 ```groovy
 def commitId = 'SHA of the commit containing the change/file you wish to review';
 def path = 'src/main/java/Main.java'
@@ -276,7 +330,7 @@ def comment = 'The review comment'
 def commentId = pullRequest.reviewComment(commitId, path, lineNumber, comment)
 ```
 
-#### Editing a review comment
+### Editing a review comment
 ```groovy
 pullRequest.editReviewComment(commentId, 'Live long and prosper.')
 // or
@@ -285,7 +339,7 @@ for (reviewComment in pullRequest['review_comments']) {
 }
 ```
 
-#### Removing a review comment
+### Removing a review comment
 ```groovy
 pullRequest.removeReviewComment(commentId)
 // or
@@ -294,7 +348,7 @@ for (reviewComment in pullRequest['review_comments']) {
 }
 ```
 
-#### Replying to a review comment
+### Replying to a review comment
 ```groovy
 pullRequest.replyToReviewComment(commentId, 'Khaaannnn!')
 // or
@@ -303,28 +357,28 @@ for (reviewComment in pullRequest['review_comments']) {
 }
 ```
 
-#### Listing a Pull Request's commits
+### Listing a Pull Request's commits
 ```groovy
 for (commit in pullRequest['commits']) {
    echo "SHA: ${commit['sha']}, Committer: ${commit['commiter']}, Commit Message: ${commit['message']}"
 }
 ```
 
-#### Listing a Pull Request's comments
+### Listing a Pull Request's comments
 ```groovy
 for (comment in pullRequest['comments']) {
   echo "Author: ${comment['user']}, Comment: ${comment['body']}"    
 }
 ```
 
-#### Listing a Pull Request's review comments
+### Listing a Pull Request's review comments
 ```groovy
 for (reviewComment in pullRequest['review_comments']) {
   echo "File: ${reviewComment['path']}, Line: ${reviewComment['line']}, Author: ${reviewComment['user']}, Comment: ${reviewComment['body']}"    
 } 
 ```
 
-#### Listing a commit's statuses
+### Listing a commit's statuses
 ```groovy
 for (commit in pullRequest['commits']) {
   for (status  in commit['statuses']) {
@@ -333,10 +387,9 @@ for (commit in pullRequest['commits']) {
 }
 ```
 
-#### Listing a Pull Request's current statuses
+### Listing a Pull Request's current statuses
 ```groovy
 for (status in pullRequest['statuses']) {
   echo "Commit: ${pullRequest['head']}, Status: ${status['status']}, Context: ${status['context']}, URL: ${status['target_url']}"
 }
 ```
-
