@@ -16,16 +16,16 @@ Table of Contents
 
 
 # Pipeline: GitHub
-The entry point for all of this plugin’s functionality is a `pullRequest` global variable, available to pipeline scripts when the plugin is enabled and the prerequisites are met. 
+The entry points for this plugin’s functionality are additional global variables, available to pipeline scripts when the plugin is enabled and the prerequisites are met. 
 
 # License
 MIT
 
 # Prerequisites
 
-Jenkins running Java 8 or higher.
+- Jenkins running Java 8 or higher.
 
-For the additional global variables, provided by this plugin, to be available to pipeline builds, the projects/jobs must be automatically created by the GitHub Organization folder/project type. 
+- Projects/jobs must be automatically created by the GitHub Organization folder/project type. 
 
 See: [GitHub Branch Source Plugin](https://go.cloudbees.com/docs/cloudbees-documentation/cje-user-guide/index.html#github-branch-source)
 
@@ -42,6 +42,9 @@ pullRequest.setCredentials('John.Smith', 'qwerty4321')
 If you plan to use this plugin to add/modify/remove comments, labels, commit statuses etc. Please ensure that the required permissions are assigned to the token supplied in the credentials (`Checkout`/`Scan`/`Manually`).
 
 # Global Variables
+
+## `repository`
+Coming soon!
 
 ## `pullRequest`
 
