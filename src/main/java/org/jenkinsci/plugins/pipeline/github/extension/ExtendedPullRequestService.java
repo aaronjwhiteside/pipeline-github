@@ -2,12 +2,14 @@ package org.jenkinsci.plugins.pipeline.github.extension;
 
 import com.google.gson.reflect.TypeToken;
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
+import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubRequest;
 import org.eclipse.egit.github.core.client.PageIterator;
 import org.eclipse.egit.github.core.client.PagedRequest;
 import org.eclipse.egit.github.core.service.PullRequestService;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,8 @@ import java.util.Objects;
  * @author Aaron Whiteside
  */
 public class ExtendedPullRequestService extends PullRequestService {
+
+    private static final String BLACK_CAT_PREVIEW = "application/vnd.github.black-cat-preview+json";
 
     public ExtendedPullRequestService(final ExtendedGitHubClient client) {
         super(client);
@@ -101,19 +105,6 @@ public class ExtendedPullRequestService extends PullRequestService {
 
     public PageIterator<ExtendedCommitComment> pageComments2(final IRepositoryIdProvider repository,
                                                              final int id) {
-        return this.pageComments2(repository, id, 100);
-    }
-
-    public PageIterator<ExtendedCommitComment> pageComments2(final IRepositoryIdProvider repository,
-                                                             final int id,
-                                                             final int size) {
-        return this.pageComments2(repository, id, 1, size);
-    }
-
-    public PageIterator<ExtendedCommitComment> pageComments2(final IRepositoryIdProvider repository,
-                                                             final int id,
-                                                             final int start,
-                                                             final int size) {
         String repoId = this.getId(repository);
         StringBuilder uri = new StringBuilder("/repos");
         uri.append('/').append(repoId);
@@ -121,7 +112,7 @@ public class ExtendedPullRequestService extends PullRequestService {
         uri.append('/').append(id);
         uri.append("/comments");
 
-        PagedRequest<ExtendedCommitComment> request = this.createPagedRequest(start, size);
+        PagedRequest<ExtendedCommitComment> request = this.createPagedRequest(1, 100);
         request.setUri(uri);
         request.setType((new TypeToken<List<ExtendedCommitComment>>(){}).getType());
         return this.createPageIterator(request);
@@ -165,5 +156,54 @@ public class ExtendedPullRequestService extends PullRequestService {
         uri.append("/comments");
         uri.append('/').append(comment.getId());
         return (ExtendedCommitComment)this.client.post(uri.toString(), comment, ExtendedCommitComment.class);
+    }
+
+    public PageIterator<User> pageRequestedReviewers(final IRepositoryIdProvider repository, final int id) {
+        String repoId = this.getId(repository);
+        StringBuilder uri = new StringBuilder("/repos");
+        uri.append('/').append(repoId);
+        uri.append("/pulls");
+        uri.append('/').append(id);
+        uri.append("/requested_reviewers");
+
+        PagedRequest<User> request = this.createPagedRequest(1, 100);
+        request.setResponseContentType(BLACK_CAT_PREVIEW);
+        request.setUri(uri);
+        request.setType((new TypeToken<List<User>>(){}).getType());
+        return this.createPageIterator(request);
+    }
+
+    public void createReviewRequests(final IRepositoryIdProvider repository,
+                                     final int id,
+                                     final String...reviewers) throws IOException {
+        Objects.requireNonNull(reviewers, "reviewers cannot be null");
+
+        String repoId = this.getId(repository);
+        StringBuilder uri = new StringBuilder("/repos");
+        uri.append('/').append(repoId);
+        uri.append("/pulls");
+        uri.append('/').append(id);
+        uri.append("/requested_reviewers");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("reviewers", Arrays.asList(reviewers));
+        getClient().post(uri.toString(), params, ExtendedPullRequest.class, BLACK_CAT_PREVIEW);
+    }
+
+    public void deleteReviewRequests(final IRepositoryIdProvider repository,
+                                     final int id,
+                                     final String...reviewers) throws IOException {
+        Objects.requireNonNull(reviewers, "reviewers cannot be null");
+
+        String repoId = this.getId(repository);
+        StringBuilder uri = new StringBuilder("/repos");
+        uri.append('/').append(repoId);
+        uri.append("/pulls");
+        uri.append('/').append(id);
+        uri.append("/requested_reviewers");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("reviewers", Arrays.asList(reviewers));
+        getClient().delete(uri.toString(), params, BLACK_CAT_PREVIEW);
     }
 }

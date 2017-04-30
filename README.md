@@ -69,6 +69,7 @@ comments | `Iterable<IssueComment>` | false
 review_comments | `Iterable<ReviewComment>` | false
 labels | `Iterable<String>` | **true** | Accepts a `List<String>`
 statuses | `List<CommitStatus>` | false 
+requested_reviewers | `Iterable<String>` | false
 updated_at | `Date` | false
 created_at | `Date` | false
 created_by | `String` | false
@@ -105,9 +106,9 @@ Returns the merge's SHA/commit id.
 > void removeLabel(String label)
 
 #### Assignees
-> void addAssignees(List<String> assignees)
+> void addAssignees(String...assignees)
 
-> void removeAssignees(List<String> assignees)
+> void removeAssignees(String...assignees)
 
 #### Review Comments
 > ReviewComment reviewComment(String commitId, String path, int position, String body)
@@ -124,6 +125,11 @@ Returns the merge's SHA/commit id.
 > IssueComment editComment(long commentId, String body)
 
 > void deleteComment(long commentId)
+
+### Requested Reviewers
+> void createReviewRequests(String...reviewers)
+
+> void deleteReviewRequests(String...reviewers)
 
 #### Misc
 > void setCredentials(String userName, String password)
@@ -394,4 +400,21 @@ for (commit in pullRequest['commits']) {
 for (status in pullRequest['statuses']) {
   echo "Commit: ${pullRequest['head']}, Status: ${status['status']}, Context: ${status['context']}, URL: ${status['target_url']}"
 }
+```
+
+### Listing a Pull Request's requested reviewers
+```groovy
+for (requestedReviewer in pullRequest['requested_reviewers']) {
+  echo "${requestedReviewer} was requested to review this Pull Request"
+}
+```
+
+### Requesting reviewers
+```groovy
+pullRequest.createReviewRequests('Spock', 'McCoy')
+```
+
+### Deleting requested reviewers
+```groovy
+pullRequest.deleteReviewRequests('McCoy')
 ```

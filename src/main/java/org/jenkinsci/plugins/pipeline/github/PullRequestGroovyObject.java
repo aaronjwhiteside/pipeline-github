@@ -127,6 +127,8 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
                 return getLabels();
             case "statuses":
                 return getStatuses();
+            case "requested_reviewers":
+                return getRequestedReviewers();
 
             case "updated_at":
                 return pullRequest.getUpdatedAt();
@@ -166,6 +168,16 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
             default:
                 throw new MissingPropertyException(property, this.getClass());
         }
+    }
+
+    private Iterable<String> getRequestedReviewers() {
+        Stream<String> stream = StreamSupport
+                .stream(pullRequestService.pageRequestedReviewers(base, pullRequest.getNumber())
+                        .spliterator(), false)
+                .flatMap(Collection::stream)
+                .map(User::getLogin);
+
+        return stream::iterator;
     }
 
     private List<CommitStatusGroovyObject> getStatuses() {
@@ -297,6 +309,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
             case "comments":
             case "review_comments":
             case "statuses":
+            case "requested_reviewers":
 
             case "updated_at":
             case "created_at":
@@ -413,7 +426,29 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
             labels = Collections.emptyList();
         }
         try {
-            issueService.setLabels(base, pullRequest.getNumber(), labels);
+            issueService.setLabels(base,
+                    pullRequest.getNumber(),
+                    labels.toArray(new String[labels.size()]));
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Whitelisted
+    public void createReviewRequests(final String...reviewers) {
+        Objects.requireNonNull(reviewers, "reviewers cannot be null");
+        try {
+            pullRequestService.createReviewRequests(base, pullRequest.getNumber(), reviewers);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Whitelisted
+    public void deleteReviewRequests(final String...reviewers) {
+        Objects.requireNonNull(reviewers, "reviewers cannot be null");
+        try {
+            pullRequestService.deleteReviewRequests(base, pullRequest.getNumber(), reviewers);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -440,7 +475,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
     }
 
     @Whitelisted
-    public void addAssignees(final List<String> assignees) {
+    public void addAssignees(final String...assignees) {
         Objects.requireNonNull(assignees, "assignees is a required argument");
         try {
             issueService.addAssignees(base, pullRequest.getNumber(), assignees);
@@ -450,7 +485,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
     }
 
     @Whitelisted
-    public void removeAssignees(final List<String> assignees) {
+    public void removeAssignees(final String...assignees) {
         Objects.requireNonNull(assignees, "assignees is a required argument");
         try {
             issueService.removeAssignees(base, pullRequest.getNumber(), assignees);

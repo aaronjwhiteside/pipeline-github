@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.pipeline.github.extension;
 
 import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.client.RequestException;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -23,12 +24,51 @@ public class ExtendedGitHubClient extends GitHubClient {
     }
 
     public <V> V patch(final String uri, final Object params, final Type type) throws IOException {
-        HttpURLConnection request = this.createPost(uri);
+        return patch(uri, params, type, null);
+    }
+
+    public <V> V patch(final String uri, final Object params, final Type type, final String accept) throws IOException {
+        HttpURLConnection request = this.createPatch(uri);
+        if (accept != null) {
+            request.setRequestProperty("Accept", accept);
+        }
         return this.sendJson(request, params, type);
     }
 
     protected HttpURLConnection createPatch(final String uri) throws IOException {
         return this.createConnection(uri, "PATCH");
+    }
+
+    public <V> V post(final String uri, final Object params, final Type type, final String accept) throws IOException {
+        HttpURLConnection request = this.createPost(uri);
+        if (accept != null) {
+            request.setRequestProperty("Accept", accept);
+        }
+        return this.sendJson(request, params, type);
+    }
+
+    public <V> V put(final String uri, final Object params, final Type type, final String accept) throws IOException {
+        HttpURLConnection request = this.createPut(uri);
+        if (accept != null) {
+            request.setRequestProperty("Accept", accept);
+        }
+        return this.sendJson(request, params, type);
+    }
+
+    public void delete(final String uri, final Object params, final String accept) throws IOException {
+        HttpURLConnection request = this.createDelete(uri);
+        if (accept != null) {
+            request.setRequestProperty("Accept", accept);
+        }
+        if (params != null) {
+            this.sendParams(request, params);
+        }
+
+        int code = request.getResponseCode();
+        this.updateRateLimits(request);
+        if (!this.isEmpty(code)) {
+            throw new RequestException(this.parseError(this.getStream(request)), code);
+        }
     }
 
     // duplicated here because it's private in the super class.

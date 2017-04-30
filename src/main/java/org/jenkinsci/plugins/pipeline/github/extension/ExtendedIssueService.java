@@ -49,7 +49,8 @@ public class ExtendedIssueService extends IssueService {
     }
 
     public void addAssignees(final IRepositoryIdProvider repository,
-                             final int issueNumber, final List<String> assignees) throws IOException {
+                             final int issueNumber,
+                             final String...assignees) throws IOException {
         String repoId = this.getId(repository);
         StringBuilder uri = new StringBuilder("/repos");
         uri.append('/').append(repoId);
@@ -57,12 +58,13 @@ public class ExtendedIssueService extends IssueService {
         uri.append('/').append(issueNumber);
         uri.append("/assignees");
         Map<Object, Object> params = new HashMap<>(1, 1.0F);
-        params.put("assignees", assignees);
+        params.put("assignees", Arrays.asList(assignees));
         getClient().post(uri.toString(), params, Issue.class);
     }
 
     public void removeAssignees(final IRepositoryIdProvider repository,
-                             final int issueNumber, final List<String> assignees) throws IOException {
+                                final int issueNumber,
+                                final String...assignees) throws IOException {
         String repoId = this.getId(repository);
         StringBuilder uri = new StringBuilder("/repos");
         uri.append('/').append(repoId);
@@ -70,12 +72,13 @@ public class ExtendedIssueService extends IssueService {
         uri.append('/').append(issueNumber);
         uri.append("/assignees");
         Map<Object, Object> params = new HashMap<>(1, 1.0F);
-        params.put("assignees", assignees);
+        params.put("assignees", Arrays.asList(assignees));
         getClient().delete(uri.toString(), params);
     }
 
     public void setAssignees(final IRepositoryIdProvider repository,
-                             final int issueNumber, final List<String> assignees) throws IOException {
+                             final int issueNumber,
+                             final String...assignees) throws IOException {
         String repoId = this.getId(repository);
         StringBuilder uri = new StringBuilder("/repos");
         uri.append('/').append(repoId);
@@ -83,7 +86,7 @@ public class ExtendedIssueService extends IssueService {
         uri.append('/').append(issueNumber);
         uri.append("/assignees");
         Map<Object, Object> params = new HashMap<>(1, 1.0F);
-        params.put("assignees", assignees);
+        params.put("assignees", Arrays.asList(assignees));
         getClient().put(uri.toString(), params, Issue.class);
     }
 
@@ -102,18 +105,21 @@ public class ExtendedIssueService extends IssueService {
     }
 
     public List<Label> setLabels(final IRepositoryIdProvider repository,
-                          final int issueNumber, final List<String> labels) throws IOException {
+                                 final int issueNumber,
+                                 final String...labels) throws IOException {
         String repoId = this.getId(repository);
         StringBuilder uri = new StringBuilder("/repos");
         uri.append('/').append(repoId);
         uri.append("/issues");
         uri.append('/').append(issueNumber);
         uri.append("/labels");
-        return getClient().put(uri.toString(), labels, (new TypeToken<List<Label>>() {}).getType());
+        List<String> params = Arrays.asList(labels);
+        return getClient().put(uri.toString(), params, (new TypeToken<List<Label>>(){}).getType());
     }
 
     public List<Label> addLabels(final IRepositoryIdProvider repository,
-                         final int issueNumber, final String...labels) throws IOException {
+                                 final int issueNumber,
+                                 final String...labels) throws IOException {
         String repoId = this.getId(repository);
         StringBuilder uri = new StringBuilder("/repos");
         uri.append('/').append(repoId);
@@ -125,7 +131,8 @@ public class ExtendedIssueService extends IssueService {
     }
 
     public void removeLabel(final IRepositoryIdProvider repository,
-                            final int issueNumber, final String label) throws IOException {
+                            final int issueNumber,
+                            final String label) throws IOException {
         String repoId = this.getId(repository);
         StringBuilder uri = new StringBuilder("/repos");
         uri.append('/').append(repoId);
