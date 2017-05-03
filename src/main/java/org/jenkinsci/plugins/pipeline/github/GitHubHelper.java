@@ -7,20 +7,16 @@ import jenkins.scm.api.SCMHead;
 import jenkins.scm.api.SCMSource;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.User;
-import org.eclipse.egit.github.core.client.GitHubClient;
 import org.jenkinsci.plugins.github_branch_source.Connector;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMSource;
 import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedGitHubClient;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedGitHubClient;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
 
 /**
- * Various utility methods taken mostly from the GitHub Branch Source Plugin (because
- * they were not public).
- *
- * @see org.jenkinsci.plugins.github_branch_source.GitHubBuildStatusNotification
+ * Various utility methods to obtain clients, repos and pull request scm heads from Jobs
  *
  * @author Aaron Whiteside
  */

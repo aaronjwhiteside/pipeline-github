@@ -13,13 +13,13 @@ import org.eclipse.egit.github.core.PullRequestMarker;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.User;
 import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitComment;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitService;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedGitHubClient;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedIssueService;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedMergeStatus;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedPullRequest;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedPullRequestService;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedCommitComment;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedCommitService;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedGitHubClient;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedIssueService;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedMergeStatus;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedPullRequest;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedPullRequestService;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
 import org.jenkinsci.plugins.workflow.cps.CpsScript;
 import org.jenkinsci.plugins.workflow.cps.persistence.PersistIn;
@@ -40,7 +40,12 @@ import java.util.stream.StreamSupport;
 import static java.util.stream.Collectors.toList;
 
 /**
+ * Groovy object that represents a GitHub PullRequest.
+ *
+ * TODO: better javadoc
+ *
  * @author Aaron Whiteside
+ * @see ExtendedPullRequest
  */
 @PersistIn(PersistenceContext.NONE)
 @SuppressFBWarnings("SE_BAD_FIELD")

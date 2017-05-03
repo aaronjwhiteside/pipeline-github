@@ -4,8 +4,8 @@ import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.ReadOnlyPropertyException;
 import org.eclipse.egit.github.core.RepositoryId;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitComment;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitService;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedCommitComment;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedCommitService;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
 
 import java.io.IOException;
@@ -13,7 +13,12 @@ import java.io.UncheckedIOException;
 import java.util.Objects;
 
 /**
+ * Groovy wrapper over {@link ExtendedCommitComment}
+ *
+ * Additionally provides one the ability to update the comment body and delete the comment.
+ *
  * @author Aaron Whiteside
+ * @see ExtendedCommitComment
  */
 public class ReviewCommentGroovyObject extends GroovyObjectSupport {
     private final RepositoryId base;

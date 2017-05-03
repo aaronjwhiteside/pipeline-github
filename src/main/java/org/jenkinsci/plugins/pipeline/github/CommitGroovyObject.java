@@ -7,8 +7,8 @@ import org.eclipse.egit.github.core.Commit;
 import org.eclipse.egit.github.core.CommitStatus;
 import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.RepositoryId;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitComment;
-import org.jenkinsci.plugins.pipeline.github.extension.ExtendedCommitService;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedCommitComment;
+import org.jenkinsci.plugins.pipeline.github.client.ExtendedCommitService;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
 
 import java.io.IOException;
@@ -23,7 +23,19 @@ import java.util.stream.StreamSupport;
 import static java.util.stream.Collectors.toList;
 
 /**
+ * Groovy wrapper over a {@link RepositoryCommit}.
+ *
+ * Provides useful properties that allow one to iterate over a commits:
+ * - Comments
+ * - Files
+ * - Statuses
+ *
+ * And a few methods to create:
+ * - Review comments
+ * - Statuses
+ *
  * @author Aaron Whiteside
+ * @see RepositoryCommit
  */
 public class CommitGroovyObject extends GroovyObjectSupport {
     private final RepositoryCommit commit;

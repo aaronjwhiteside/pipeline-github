@@ -6,7 +6,10 @@ import groovy.lang.ReadOnlyPropertyException;
 import org.eclipse.egit.github.core.CommitFile;
 
 /**
+ * Groovy wrapper over a {@link CommitFile}.
+ *
  * @author Aaron Whiteside
+ * @see CommitFile
  */
 public class CommitFileGroovyObject extends GroovyObjectSupport {
     private final CommitFile file;

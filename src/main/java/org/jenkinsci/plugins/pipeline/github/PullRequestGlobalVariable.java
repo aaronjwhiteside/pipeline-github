@@ -6,7 +6,10 @@ import org.jenkinsci.plugins.workflow.cps.GlobalVariable;
 import javax.annotation.Nonnull;
 
 /**
+ * Factory for our {@link PullRequestGroovyObject} instance.
+ *
  * @author Aaron Whiteside
+ * @see PullRequestGroovyObject
  */
 public class PullRequestGlobalVariable extends GlobalVariable {
 

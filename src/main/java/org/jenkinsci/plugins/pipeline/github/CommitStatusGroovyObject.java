@@ -6,7 +6,10 @@ import groovy.lang.ReadOnlyPropertyException;
 import org.eclipse.egit.github.core.CommitStatus;
 
 /**
+ * Groovy wrapper over a {@link CommitStatus}
+ *
  * @author Aaron Whiteside
+ * @see CommitStatus
  */
 public class CommitStatusGroovyObject extends GroovyObjectSupport {
     private final CommitStatus commitStatus;

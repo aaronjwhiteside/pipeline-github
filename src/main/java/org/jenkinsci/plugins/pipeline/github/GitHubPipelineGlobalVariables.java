@@ -15,7 +15,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 /**
+ * Factory for our {@link PullRequestGlobalVariable} instance.
+ *
  * @author Aaron Whiteside
+ * @see PullRequestGlobalVariable
  */
 @Extension
 public class GitHubPipelineGlobalVariables extends GlobalVariableSet {

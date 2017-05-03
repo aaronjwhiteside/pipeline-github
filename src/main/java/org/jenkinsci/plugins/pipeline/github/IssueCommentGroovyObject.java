@@ -12,7 +12,12 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 /**
+ * Groovy wrapper over a {@link Comment}
+ *
+ * Additionally provides one the ability to update the comment body and delete the comment.
+ *
  * @author Aaron Whiteside
+ * @see Comment
  */
 public class IssueCommentGroovyObject extends GroovyObjectSupport {
     private final RepositoryId base;

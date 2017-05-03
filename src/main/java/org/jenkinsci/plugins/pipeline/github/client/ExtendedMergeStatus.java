@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.pipeline.github.extension;
+package org.jenkinsci.plugins.pipeline.github.client;
 
 import org.eclipse.egit.github.core.MergeStatus;
 
