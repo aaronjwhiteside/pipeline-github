@@ -281,7 +281,7 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
                 break;
             case "base":
                 Objects.requireNonNull(newValue, "base cannot be null");
-                setBody(newValue.toString());
+                setBase(newValue.toString());
                 break;
             case "locked":
                 Objects.requireNonNull(newValue, "locked cannot be null");
