@@ -15,18 +15,9 @@
     <packaging>hpi</packaging>
 
     <properties>
-        <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-        <!--<jenkins.version>2.7.3</jenkins.version>-->
         <jenkins.version>2.54</jenkins.version>
-        <!-- Java Level to use. Java 7 required when using core >= 1.612 -->
         <java.level>8</java.level>
-        <!-- Jenkins Test Harness version you use to test the plugin. -->
-        <!-- For Jenkins version >= 1.580.1 use JTH 2.x or higher. -->
         <jenkins-test-harness.version>2.19</jenkins-test-harness.version>
-        <!-- Other properties you may want to use:
-             ~ hpi-plugin.version: The HPI Maven Plugin version used by the plugin..
-             ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
-        -->
         <hpi-plugin.version>1.122</hpi-plugin.version>
         <stapler-plugin.version>1.17</stapler-plugin.version>
     </properties>
@@ -79,18 +70,11 @@
             <version>2.1.1</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>junit</artifactId>
-            <version>1.20</version>
-        </dependency>
-
         <!-- For Steps -->
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-step-api</artifactId>
             <version>2.9</version>
-            <type>jar</type>
         </dependency>
 
         <dependency>
@@ -103,7 +87,6 @@
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>github-branch-source</artifactId>
             <version>2.0.5</version>
-            <type>jar</type>
         </dependency>
 
         <!-- GitHub Client Dependencies -->
@@ -118,6 +101,29 @@
             <artifactId>gson</artifactId>
             <version>2.8.0</version>
         </dependency>
+
+        <!-- Unit testing Dependencies -->
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>junit</artifactId>
+            <version>1.20</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-job</artifactId>
+            <version>2.10</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.jenkins-ci.plugins.workflow</groupId>-->
+            <!--<artifactId>workflow-multibranch</artifactId>-->
+            <!--<version>2.14</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+
 
     </dependencies>
 
