@@ -4,6 +4,8 @@ Table of Contents
   * [License](#license)
   * [Prerequisites](#prerequisites)
   * [Credentials](#credentials)
+  * [Triggers](#triggers)
+    * [issueCommentTrigger](#issuecommenttrigger)
   * [Global Variables](#global-variables)
     * [pullRequest](#pullrequest)
   * [Auxiliary Classes](#auxiliary-classes)
@@ -40,6 +42,39 @@ pullRequest.setCredentials('John.Smith', 'qwerty4321')
 ```
 
 If you plan to use this plugin to add/modify/remove comments, labels, commit statuses etc. Please ensure that the required permissions are assigned to the token supplied in the credentials (`Checkout`/`Scan`/`Manually`).
+
+# Triggers
+
+This plugin adds the following pipeline triggers
+
+## issueCommentTrigger
+
+### Requirements
+
+- This trigger only works on Pull Requests.
+- Currently this trigger will only allow collaborators of the repository in question to trigger builds.
+- The trigger takes a Java regex.
+
+### Limitations
+
+- The Pull Request's job/build must be run at least once for the trigger to be registered. If an initial build is never made, then the trigger will never be registered.
+
+### Considerations
+
+This trigger would be of limited usefulness for people wishing to build public GitHub/Jenkins bots, using pipeline scripts. As there is no way to ensure that a Pull Requests `Jenkinsfile`'s contains the trigger. Not to mention you would not want to trust just any `Jenkinsfile` from a random Pull Request/non-collaborator.
+
+This trigger is intended to be used inside enterprise organizations that: 
+1. Where all branches/forks just contain a token `Jenkinsfile` that delegates to the real pipeline script. See [Shared Libraries](https://jenkins.io/doc/book/pipeline/shared-libraries/).
+2. Trust all their Pull Request authors .
+
+### Usage
+```groovy
+properties([
+  pipelineTriggers([
+    issueCommentTrigger('.*test this please.*')
+  ])
+])
+```
 
 # Global Variables
 

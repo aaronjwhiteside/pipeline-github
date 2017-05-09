@@ -1,9 +1,7 @@
 package org.jenkinsci.plugins.pipeline.github;
 
 import hudson.Extension;
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import hudson.model.listeners.RunListener;
+import hudson.model.Run;;
 import jenkins.scm.api.SCMHead;
 import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
 import org.jenkinsci.plugins.workflow.cps.GlobalVariable;
@@ -29,7 +27,7 @@ public class GitHubPipelineGlobalVariables extends GlobalVariableSet {
             return Collections.emptyList();
         }
         SCMHead scmHead = SCMHead.HeadByItem.findHead(run.getParent());
-        if (scmHead != null && scmHead instanceof PullRequestSCMHead) {
+        if (scmHead instanceof PullRequestSCMHead) {
             Collection<GlobalVariable> result = new LinkedList<>();
             result.add(new PullRequestGlobalVariable());
             return result;
