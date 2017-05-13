@@ -51,21 +51,26 @@ This plugin adds the following pipeline triggers
 
 ### Requirements
 
-- This trigger only works on Pull Requests.
+- This trigger only works on Pull Requests, created by the GitHub Branch Source Plugin.
 - Currently this trigger will only allow collaborators of the repository in question to trigger builds.
-- The trigger takes a Java regex.
 
 ### Limitations
 
-- The Pull Request's job/build must be run at least once for the trigger to be registered. If an initial build is never made, then the trigger will never be registered.
+The Pull Request's job/build must have run at least once for the trigger to be registered. If an initial run never takes place then the trigger won't be registered and cannot pickup on any comments made. 
+
+This should not be an issue in practice, because a requirement of using this plugin is that your jobs are setup automatically by the GitHub Branch Source Plugin, which will trigger an initial build when it is notified of a new Pull Request. 
 
 ### Considerations
 
-This trigger would be of limited usefulness for people wishing to build public GitHub/Jenkins bots, using pipeline scripts. As there is no way to ensure that a Pull Requests `Jenkinsfile`'s contains the trigger. Not to mention you would not want to trust just any `Jenkinsfile` from a random Pull Request/non-collaborator.
+This trigger would be of limited usefulness for people wishing to build public GitHub/Jenkins bots, using pipeline scripts. As there is no way to ensure that a Pull Request's `Jenkinsfile` contains any triggers. Not to mention you would not want to trust just any `Jenkinsfile` from a random Pull Request/non-collaborator.
 
-This trigger is intended to be used inside enterprise organizations that: 
-1. Where all branches/forks just contain a token `Jenkinsfile` that delegates to the real pipeline script. See [Shared Libraries](https://jenkins.io/doc/book/pipeline/shared-libraries/).
-2. Trust all their Pull Request authors .
+This trigger is intended to be used inside enterprise organizations: 
+1. Where all branches and forks just contain a token `Jenkinsfile` that delegates to the real pipeline script, using [shared libraries](https://jenkins.io/doc/book/pipeline/shared-libraries/).
+2. Trust all their Pull Request authors.
+
+### Parameters
+
+- `commentPattern` (__Required__) - A Java style regular expression
 
 ### Usage
 ```groovy

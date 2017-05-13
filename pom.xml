@@ -26,8 +26,6 @@
     <description>Pipeline GitHub Support</description>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/TODO+Plugin</url>
 
-    <!-- The default licence for Jenkins OSS Plugins is MIT. Substitute for the applicable one if needed. -->
-
     <licenses>
         <license>
             <name>MIT License</name>
@@ -36,13 +34,12 @@
         </license>
     </licenses>
 
-    <!-- Assuming you want to host on @jenkinsci:
     <scm>
-      <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-      <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-      <url>http://github.com/jenkinsci/${project.artifactId}-plugin</url>
+        <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
+        <url>http://github.com/jenkinsci/${project.artifactId}-plugin</url>
     </scm>
-     -->
+
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
