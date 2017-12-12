@@ -434,7 +434,7 @@ for (commit in pullRequest['commits']) {
 ### Creating a Commit Status against arbitrary commits
 ```groovy
 for (commit in pullRequest['commits']) {
-  createStatus(status: 'pending')
+  commit.createStatus(status: 'pending')
 }
 ```
 
