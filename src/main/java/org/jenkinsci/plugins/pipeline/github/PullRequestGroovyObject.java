@@ -143,6 +143,11 @@ public class PullRequestGroovyObject extends GroovyObjectSupport implements Seri
     }
 
     @Whitelisted
+    public String getHeadRef() {
+        return pullRequest.getHead().getRef();
+    }
+
+    @Whitelisted
     public String getBase() {
         return pullRequest.getBase().getRef();
     }
