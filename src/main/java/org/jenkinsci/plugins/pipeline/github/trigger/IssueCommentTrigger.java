@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.pipeline.github.trigger;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.model.Item;
 import hudson.triggers.Trigger;
@@ -53,6 +54,7 @@ public class IssueCommentTrigger extends Trigger<WorkflowJob> {
         }
     }
 
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     private String getKey(final WorkflowJob project) {
         GitHubSCMSource scmSource = (GitHubSCMSource) SCMSource.SourceByItem.findSource(project);
         PullRequestSCMHead scmHead = (PullRequestSCMHead) SCMHead.HeadByItem.findHead(project);
