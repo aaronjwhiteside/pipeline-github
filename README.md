@@ -92,7 +92,7 @@ pipeline {
 }
 ```
 
-### Detecting whether a build was started by the trigger in a script:
+#### Detecting whether a build was started by the trigger in a script:
 ```groovy
 def triggerCause = currentBuild.rawBuild.getCause(
     org.jenkinsci.plugins.pipeline.github.trigger.IssueCommentCause
